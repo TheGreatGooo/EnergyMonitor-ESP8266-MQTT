@@ -244,6 +244,28 @@ void readConfigsFromFileSystem() {
           strcpy(current_gain_st6, json["current_gain_st6"]);
           strcpy(chip_select_bank1, json["chip_select_bank1"]);
           strcpy(chip_select_bank2, json["chip_select_bank2"]);
+
+          String monitor_name_string = String(monitor_name);
+          energy_monitor1_system_status0_topic = (new String(monitor_name_string + "/energy_monitor1/system_status0"))->c_str();
+          energy_monitor1_system_status1_topic = (new String(monitor_name_string + "/energy_monitor1/system_status1"))->c_str();
+          energy_monitor1_meter_status0_topic = (new String(monitor_name_string + "/energy_monitor1/meter_status0"))->c_str();
+          energy_monitor1_meter_status1_topic = (new String(monitor_name_string + "/energy_monitor1/meter_status1"))->c_str();
+          energy_monitor2_system_status0_topic = (new String(monitor_name_string + "/energy_monitor2/system_status0"))->c_str();
+          energy_monitor2_system_status1_topic = (new String(monitor_name_string + "/energy_monitor2/system_status1"))->c_str();
+          energy_monitor2_meter_status0_topic = (new String(monitor_name_string + "/energy_monitor2/meter_status0"))->c_str();
+          energy_monitor2_meter_status1_topic = (new String(monitor_name_string + "/energy_monitor2/meter_status1"))->c_str();
+          line_voltage_topic = (new String(monitor_name_string + "/line_voltage"))->c_str();
+          line_frequency_topic = (new String(monitor_name_string + "/line_frequency"))->c_str();
+          line_current1_topic = (new String(monitor_name_string + "/port1/current"))->c_str();
+          line_current2_topic = (new String(monitor_name_string + "/port2/current"))->c_str();
+          line_current3_topic = (new String(monitor_name_string + "/port3/current"))->c_str();
+          line_current4_topic = (new String(monitor_name_string + "/port4/current"))->c_str();
+          line_current5_topic = (new String(monitor_name_string + "/port5/current"))->c_str();
+          line_current6_topic = (new String(monitor_name_string + "/port6/current"))->c_str();
+          energy_monitor1_total_import_energy_topic = (new String(monitor_name_string + "/energy_monitor1/total_import_energy"))->c_str();
+          energy_monitor1_total_export_energy_topic = (new String(monitor_name_string + "/energy_monitor1/total_export_energy"))->c_str();
+          energy_monitor2_total_import_energy_topic = (new String(monitor_name_string + "/energy_monitor2/total_import_energy"))->c_str();
+          energy_monitor2_total_export_energy_topic = (new String(monitor_name_string + "/energy_monitor2/total_export_energy"))->c_str();
         } else {
           Serial.println("failed to load json config");
         }
