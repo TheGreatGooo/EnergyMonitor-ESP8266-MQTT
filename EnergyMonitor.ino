@@ -6,6 +6,7 @@
 #include <ArduinoJson.h>          //https://github.com/bblanchon/ArduinoJson
 #include <SPI.h>
 #include <ATM90E36.h>
+#include <PubSubClient.h>
 
 //define your default values here, if there are different values in config.json, they are overwritten.
 char mqtt_server[40];
@@ -25,6 +26,9 @@ char chip_select_bank2[2] = "16";
 ATM90E36 *energyMonitor1;
 ATM90E36 *energyMonitor2;
 
+WiFiClient esp_wifi_client;
+PubSubClient mqtt_client(esp_wifi_client);
+
 //flag for saving data
 bool shouldSaveConfig = false;
 
@@ -33,7 +37,6 @@ void saveConfigCallback () {
   Serial.println("Should save config");
   shouldSaveConfig = true;
 }
-
 
 void setup() {
   // put your setup code here, to run once:
@@ -45,6 +48,19 @@ void setup() {
   readConfigsFromFileSystem();
   setupWiFi();
   initializeEnerygyMonitors();
+  initializeMQTTClient();
+}
+
+void initializeMQTTClient() {
+  mqtt_client.setServer(mqtt_server, atoi(mqtt_port));
+  mqtt_client.setCallback(callback);
+}
+
+void callback(char* topic, byte* payload, unsigned int length) {
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  //TODO:
 }
 
 void setupWiFi() {
