@@ -113,6 +113,17 @@ void setup() {
   //add all your parameters here
   wifiManager.addParameter(&custom_mqtt_server);
   wifiManager.addParameter(&custom_mqtt_port);
+  wifiManager.addParameter(&custom_line_freq);
+  wifiManager.addParameter(&custom_pga_gain);
+  wifiManager.addParameter(&custom_voltage_gain);
+  wifiManager.addParameter(&custom_current_gain_st1);
+  wifiManager.addParameter(&custom_current_gain_st2);
+  wifiManager.addParameter(&custom_current_gain_st3);
+  wifiManager.addParameter(&custom_current_gain_st4);
+  wifiManager.addParameter(&custom_current_gain_st5);
+  wifiManager.addParameter(&custom_current_gain_st6);
+  wifiManager.addParameter(&custom_chip_select_bank1);
+  wifiManager.addParameter(&custom_chip_select_bank2);
 
   //reset settings - for testing
   //wifiManager.resetSettings();
@@ -144,6 +155,17 @@ void setup() {
   //read updated parameters
   strcpy(mqtt_server, custom_mqtt_server.getValue());
   strcpy(mqtt_port, custom_mqtt_port.getValue());
+  strcpy(line_freq, custom_line_freq.getValue());
+  strcpy(pga_gain, custom_pga_gain.getValue());
+  strcpy(voltage_gain, custom_voltage_gain.getValue());
+  strcpy(current_gain_st1, custom_current_gain_st1.getValue());
+  strcpy(current_gain_st2, custom_current_gain_st2.getValue());
+  strcpy(current_gain_st3, custom_current_gain_st3.getValue());
+  strcpy(current_gain_st4, custom_current_gain_st4.getValue());
+  strcpy(current_gain_st5, custom_current_gain_st5.getValue());
+  strcpy(current_gain_st6, custom_current_gain_st6.getValue());
+  strcpy(chip_select_bank1, custom_chip_select_bank1.getValue());
+  strcpy(chip_select_bank2, custom_chip_select_bank1.getValue());
 
   //save the custom parameters to FS
   if (shouldSaveConfig) {
@@ -152,6 +174,17 @@ void setup() {
     JsonObject& json = jsonBuffer.createObject();
     json["mqtt_server"] = mqtt_server;
     json["mqtt_port"] = mqtt_port;
+    json["line_freq"] = line_freq;
+    json["pga_gain"] = pga_gain;
+    json["voltage_gain"] = voltage_gain;
+    json["current_gain_st1"] = current_gain_st1;
+    json["current_gain_st2"] = current_gain_st2;
+    json["current_gain_st3"] = current_gain_st3;
+    json["current_gain_st4"] = current_gain_st4;
+    json["current_gain_st5"] = current_gain_st5;
+    json["current_gain_st6"] = current_gain_st6;
+    json["chip_select_bank1"] = chip_select_bank1;
+    json["chip_select_bank2"] = chip_select_bank2;
 
     File configFile = SPIFFS.open("/config.json", "w");
     if (!configFile) {
