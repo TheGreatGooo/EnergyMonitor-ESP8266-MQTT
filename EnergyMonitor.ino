@@ -9,6 +9,7 @@
 #include <PubSubClient.h>
 
 //define your default values here, if there are different values in config.json, they are overwritten.
+char monitor_name[40] = "EnergyMonitor";
 char mqtt_server[40];
 char mqtt_port[6] = "8080";
 char line_freq[5] = "4485";
@@ -28,9 +29,32 @@ ATM90E36 *energyMonitor2;
 
 WiFiClient esp_wifi_client;
 PubSubClient mqtt_client(esp_wifi_client);
+unsigned long last_message_publish = 0;
 
 //flag for saving data
 bool shouldSaveConfig = false;
+
+//topics to publish
+char* energy_monitor1_system_status0_topic;
+char* energy_monitor1_system_status1_topic;
+char* energy_monitor1_meter_status0_topic;
+char* energy_monitor1_meter_status1_topic;
+char* energy_monitor2_system_status0_topic;
+char* energy_monitor2_system_status1_topic;
+char* energy_monitor2_meter_status0_topic;
+char* energy_monitor2_meter_status1_topic;
+char* line_voltage_topic;
+char* line_frequency_topic;
+char* line_current1_topic;
+char* line_current2_topic;
+char* line_current3_topic;
+char* line_current4_topic;
+char* line_current5_topic;
+char* line_current6_topic;
+char* energy_monitor1_total_import_energy_topic;
+char* energy_monitor1_total_export_energy_topic;
+char* energy_monitor2_total_import_energy_topic;
+char* energy_monitor2_total_export_energy_topic;
 
 //callback notifying us of the need to save config
 void saveConfigCallback () {
@@ -67,6 +91,7 @@ void setupWiFi() {
   // The extra parameters to be configured (can be either global or just in the setup)
   // After connecting, parameter.getValue() will get you the configured value
   // id/name placeholder/prompt default length
+  WiFiManagerParameter custom_monitor_name("monitor_name", "monitor name", monitor_name, 40);
   WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqtt_server, 40);
   WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqtt_port, 6);
   WiFiManagerParameter custom_line_freq("line_freq", "line freq option", line_freq, 5);
@@ -92,6 +117,7 @@ void setupWiFi() {
   wifiManager.setSTAStaticIPConfig(IPAddress(10,0,1,99), IPAddress(10,0,1,1), IPAddress(255,255,255,0));
   
   //add all your parameters here
+  wifiManager.addParameter(&custom_monitor_name);
   wifiManager.addParameter(&custom_mqtt_server);
   wifiManager.addParameter(&custom_mqtt_port);
   wifiManager.addParameter(&custom_line_freq);
@@ -122,7 +148,7 @@ void setupWiFi() {
   //if it does not connect it starts an access point with the specified name
   //here  "AutoConnectAP"
   //and goes into a blocking loop awaiting configuration
-  if (!wifiManager.autoConnect("EnergyMonitor" + ESP.getChipId(), "Id0ntknow")) {
+  if (!wifiManager.autoConnect(monitor_name, "Id0ntknow")) {
     Serial.println("failed to connect and hit timeout");
     delay(3000);
     //reset and try again, or maybe put it to deep sleep
@@ -134,6 +160,7 @@ void setupWiFi() {
   Serial.println("connected...yeey :)");
 
   //read updated parameters
+  strcpy(monitor_name, custom_monitor_name.getValue());
   strcpy(mqtt_server, custom_mqtt_server.getValue());
   strcpy(mqtt_port, custom_mqtt_port.getValue());
   strcpy(line_freq, custom_line_freq.getValue());
@@ -153,6 +180,7 @@ void setupWiFi() {
     Serial.println("saving config");
     DynamicJsonBuffer jsonBuffer;
     JsonObject& json = jsonBuffer.createObject();
+    json["monitor_name"] = monitor_name;
     json["mqtt_server"] = mqtt_server;
     json["mqtt_port"] = mqtt_port;
     json["line_freq"] = line_freq;
@@ -202,6 +230,7 @@ void readConfigsFromFileSystem() {
         json.printTo(Serial);
         if (json.success()) {
           Serial.println("\nparsed json");
+          strcpy(monitor_name, json["monitor_name"]);
           strcpy(mqtt_server, json["mqtt_server"]);
           strcpy(mqtt_port, json["mqtt_port"]);
           strcpy(line_freq, json["line_freq"]);
@@ -256,7 +285,7 @@ void reconnect() {
   while (!mqtt_client.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Create a random client ID
-    String clientId = "EnergyMonitorClient-";
+    String clientId = String(monitor_name);
     clientId += String(random(0xffff), HEX);
     // Attempt to connect
     if (client.connect(clientId.c_str())) {
@@ -280,9 +309,9 @@ void mqttLoop() {
 
 void loop() {
   unsigned long now = millis();
-  if (now - lastMsg > 2000) {
+  if (now - last_message_publish > 500) {
     lastMsg = now;
-    ++value;
+    client.publish("outTopic", msg);
     snprintf (msg, MSG_BUFFER_SIZE, "hello world #%ld", value);
     Serial.print("Publish message: ");
     Serial.println(msg);
