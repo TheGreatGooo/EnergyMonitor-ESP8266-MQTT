@@ -333,10 +333,25 @@ void loop() {
   unsigned long now = millis();
   if (now - last_message_publish > 500) {
     lastMsg = now;
-    client.publish("outTopic", msg);
-    snprintf (msg, MSG_BUFFER_SIZE, "hello world #%ld", value);
-    Serial.print("Publish message: ");
-    Serial.println(msg);
-    client.publish("outTopic", msg);
+    mqtt_client.publish(energy_monitor1_system_status0_topic, String(energyMonitor1->GetSysStatus0()));
+    mqtt_client.publish(energy_monitor1_system_status1_topic, String(energyMonitor1->GetSysStatus1()));
+    mqtt_client.publish(energy_monitor1_meter_status0_topic, String(energyMonitor1->GetMeterStatus0()));
+    mqtt_client.publish(energy_monitor1_meter_status1_topic, String(energyMonitor1->GetMeterStatus1()));
+    mqtt_client.publish(energy_monitor2_system_status0_topic, String(energyMonitor2->GetSysStatus0()));
+    mqtt_client.publish(energy_monitor2_system_status1_topic, String(energyMonitor2->GetSysStatus1()));
+    mqtt_client.publish(energy_monitor2_meter_status0_topic, String(energyMonitor2->GetMeterStatus0()));
+    mqtt_client.publish(energy_monitor2_meter_status1_topic, String(energyMonitor2->GetMeterStatus1()));
+    mqtt_client.publish(line_voltage_topic, String(energyMonitor1->GetLineVoltageA()));
+    mqtt_client.publish(line_frequency_topic, String(energyMonitor1->GetFrequency()));
+    mqtt_client.publish(line_current1_topic, String(energyMonitor1->GetLineCurrentA()));
+    mqtt_client.publish(line_current2_topic, String(energyMonitor1->GetLineCurrentB()));
+    mqtt_client.publish(line_current3_topic, String(energyMonitor1->GetLineCurrentC()));
+    mqtt_client.publish(line_current4_topic, String(energyMonitor2->GetLineCurrentA()));
+    mqtt_client.publish(line_current5_topic, String(energyMonitor2->GetLineCurrentB()));
+    mqtt_client.publish(line_current6_topic, String(energyMonitor2->GetLineCurrentC()));
+    mqtt_client.publish(energy_monitor1_total_import_energy_topic, String(energyMonitor1->GetImportEnergy()));
+    mqtt_client.publish(energy_monitor1_total_export_energy_topic, String(energyMonitor1->GetExportEnergy()));
+    mqtt_client.publish(energy_monitor2_total_import_energy_topic, String(energyMonitor2->GetImportEnergy()));
+    mqtt_client.publish(energy_monitor2_total_export_energy_topic, String(energyMonitor2->GetExportEnergy()));
   }
 }
