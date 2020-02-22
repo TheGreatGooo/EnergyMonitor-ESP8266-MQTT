@@ -10,17 +10,17 @@
 //define your default values here, if there are different values in config.json, they are overwritten.
 char mqtt_server[40];
 char mqtt_port[6] = "8080";
-char LineFreq[5] = "4485";
-char PGAGain[5] = "21";
-char VoltageGain[5] = "29462";
-char CurrentGainSCT1[5] = "25498";
-char CurrentGainSCT2[5] = "25498";
-char CurrentGainSCT3[5] = "25498";
-char CurrentGainSCT4[5] = "25498";
-char CurrentGainSCT5[5] = "25498";
-char CurrentGainSCT6[5] = "25498";
-char ChipSelectBank1[2] = "15";
-char ChipSelectBank2[2] = "16"
+char line_freq[5] = "4485";
+char pga_gain[5] = "21";
+char voltage_gain[5] = "29462";
+char current_gain_st1[5] = "25498";
+char current_gain_st2[5] = "25498";
+char current_gain_st3[5] = "25498";
+char current_gain_st4[5] = "25498";
+char current_gain_st5[5] = "25498";
+char current_gain_st6[5] = "25498";
+char chip_select_bank1[2] = "15";
+char chip_select_bank2[2] = "16"
 
 //flag for saving data
 bool shouldSaveConfig = false;
@@ -62,6 +62,17 @@ void setup() {
           Serial.println("\nparsed json");
           strcpy(mqtt_server, json["mqtt_server"]);
           strcpy(mqtt_port, json["mqtt_port"]);
+          strcpy(line_freq, json["line_freq"]);
+          strcpy(pga_gain, json["pga_gain"]);
+          strcpy(voltage_gain, json["voltage_gain"]);
+          strcpy(current_gain_st1, json["current_gain_st1"]);
+          strcpy(current_gain_st2, json["current_gain_st2"]);
+          strcpy(current_gain_st3, json["current_gain_st3"]);
+          strcpy(current_gain_st4, json["current_gain_st4"]);
+          strcpy(current_gain_st5, json["current_gain_st5"]);
+          strcpy(current_gain_st6, json["current_gain_st6"]);
+          strcpy(chip_select_bank1, json["chip_select_bank1"]);
+          strcpy(chip_select_bank2, json["chip_select_bank2"]);
         } else {
           Serial.println("failed to load json config");
         }
@@ -77,6 +88,17 @@ void setup() {
   // id/name placeholder/prompt default length
   WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqtt_server, 40);
   WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqtt_port, 6);
+  WiFiManagerParameter custom_line_freq("line_freq", "line freq option", line_freq, 5);
+  WiFiManagerParameter custom_pga_gain("pga_gain", "PGA Gain", pga_gain, 5);
+  WiFiManagerParameter custom_voltage_gain("voltage_gain", "Voltage Gain", voltage_gain, 5);
+  WiFiManagerParameter custom_current_gain_st1("current_gain_st1", "Current Gain Port 1", current_gain_st1, 5);
+  WiFiManagerParameter custom_current_gain_st2("current_gain_st2", "Current Gain Port 2", current_gain_st2, 5);
+  WiFiManagerParameter custom_current_gain_st3("current_gain_st3", "Current Gain Port 3", current_gain_st3, 5);
+  WiFiManagerParameter custom_current_gain_st4("current_gain_st4", "Current Gain Port 4", current_gain_st4, 5);
+  WiFiManagerParameter custom_current_gain_st5("current_gain_st5", "Current Gain Port 5", current_gain_st5, 5);
+  WiFiManagerParameter custom_current_gain_st6("current_gain_st6", "Current Gain Port 6", current_gain_st6, 5);
+  WiFiManagerParameter custom_chip_select_bank1("chip_select_bank1", "Chip 1 Select Pin", chip_select_bank1, 2);
+  WiFiManagerParameter custom_chip_select_bank2("chip_select_bank2", "Chip 2 Select Pin", chip_select_bank2, 2);
 
   //WiFiManager
   //Local intialization. Once its business is done, there is no need to keep it around
