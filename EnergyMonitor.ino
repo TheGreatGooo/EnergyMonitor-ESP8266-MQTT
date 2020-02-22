@@ -202,7 +202,11 @@ void setup() {
 
   Serial.println("local ip");
   Serial.println(WiFi.localIP());
-  
+
+  initializeEnerygyMonitors();
+}
+
+void initializeEnerygyMonitors() {  
   energyMonitor1 = new ATM90E36(
     (unsigned short) atoi(chip_select_bank1),
     (unsigned short) atoi(line_freq),
@@ -220,7 +224,11 @@ void setup() {
     (unsigned short) atoi(current_gain_st4),
     (unsigned short) atoi(current_gain_st5),
     (unsigned short) atoi(current_gain_st6));
-
+  
+  delay(1000);
+  energyMonitor1.begin();
+  delay(1000);
+  energyMonitor2.begin();
 }
 
 void loop() {
