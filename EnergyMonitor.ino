@@ -20,7 +20,10 @@ char current_gain_st4[5] = "25498";
 char current_gain_st5[5] = "25498";
 char current_gain_st6[5] = "25498";
 char chip_select_bank1[2] = "15";
-char chip_select_bank2[2] = "16"
+char chip_select_bank2[2] = "16";
+
+ATM90E36 *energyMonitor1;
+ATM90E36 *energyMonitor2;
 
 //flag for saving data
 bool shouldSaveConfig = false;
@@ -199,6 +202,24 @@ void setup() {
 
   Serial.println("local ip");
   Serial.println(WiFi.localIP());
+  
+  energyMonitor1 = new ATM90E36(
+    (unsigned short) atoi(chip_select_bank1),
+    (unsigned short) atoi(line_freq),
+    (unsigned short) atoi(pga_gain),
+    (unsigned short) atoi(voltage_gain),
+    (unsigned short) atoi(current_gain_st1),
+    (unsigned short) atoi(current_gain_st2),
+    (unsigned short) atoi(current_gain_st3));
+
+  energyMonitor2 = new ATM90E36(
+    (unsigned short) atoi(chip_select_bank2),
+    (unsigned short) atoi(line_freq),
+    (unsigned short) atoi(pga_gain),
+    (unsigned short) atoi(voltage_gain),
+    (unsigned short) atoi(current_gain_st4),
+    (unsigned short) atoi(current_gain_st5),
+    (unsigned short) atoi(current_gain_st6));
 
 }
 
