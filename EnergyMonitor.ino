@@ -42,50 +42,12 @@ void setup() {
 
   //clean FS, for testing
   //SPIFFS.format();
+  readConfigsFromFileSystem();
+  setupWiFi();
+  initializeEnerygyMonitors();
+}
 
-  //read configuration from FS json
-  Serial.println("mounting FS...");
-
-  if (SPIFFS.begin()) {
-    Serial.println("mounted file system");
-    if (SPIFFS.exists("/config.json")) {
-      //file exists, reading and loading
-      Serial.println("reading config file");
-      File configFile = SPIFFS.open("/config.json", "r");
-      if (configFile) {
-        Serial.println("opened config file");
-        size_t size = configFile.size();
-        // Allocate a buffer to store contents of the file.
-        std::unique_ptr<char[]> buf(new char[size]);
-        configFile.readBytes(buf.get(), size);
-        DynamicJsonBuffer jsonBuffer;
-        JsonObject& json = jsonBuffer.parseObject(buf.get());
-        json.printTo(Serial);
-        if (json.success()) {
-          Serial.println("\nparsed json");
-          strcpy(mqtt_server, json["mqtt_server"]);
-          strcpy(mqtt_port, json["mqtt_port"]);
-          strcpy(line_freq, json["line_freq"]);
-          strcpy(pga_gain, json["pga_gain"]);
-          strcpy(voltage_gain, json["voltage_gain"]);
-          strcpy(current_gain_st1, json["current_gain_st1"]);
-          strcpy(current_gain_st2, json["current_gain_st2"]);
-          strcpy(current_gain_st3, json["current_gain_st3"]);
-          strcpy(current_gain_st4, json["current_gain_st4"]);
-          strcpy(current_gain_st5, json["current_gain_st5"]);
-          strcpy(current_gain_st6, json["current_gain_st6"]);
-          strcpy(chip_select_bank1, json["chip_select_bank1"]);
-          strcpy(chip_select_bank2, json["chip_select_bank2"]);
-        } else {
-          Serial.println("failed to load json config");
-        }
-        configFile.close();
-      }
-    }
-  } else {
-    Serial.println("failed to mount FS");
-  }
-  //end read
+void setupWiFi() {
   // The extra parameters to be configured (can be either global or just in the setup)
   // After connecting, parameter.getValue() will get you the configured value
   // id/name placeholder/prompt default length
@@ -202,8 +164,50 @@ void setup() {
 
   Serial.println("local ip");
   Serial.println(WiFi.localIP());
+}
 
-  initializeEnerygyMonitors();
+void readConfigsFromFileSystem() {
+  Serial.println("mounting FS...");
+
+  if (SPIFFS.begin()) {
+    Serial.println("mounted file system");
+    if (SPIFFS.exists("/config.json")) {
+      //file exists, reading and loading
+      Serial.println("reading config file");
+      File configFile = SPIFFS.open("/config.json", "r");
+      if (configFile) {
+        Serial.println("opened config file");
+        size_t size = configFile.size();
+        // Allocate a buffer to store contents of the file.
+        std::unique_ptr<char[]> buf(new char[size]);
+        configFile.readBytes(buf.get(), size);
+        DynamicJsonBuffer jsonBuffer;
+        JsonObject& json = jsonBuffer.parseObject(buf.get());
+        json.printTo(Serial);
+        if (json.success()) {
+          Serial.println("\nparsed json");
+          strcpy(mqtt_server, json["mqtt_server"]);
+          strcpy(mqtt_port, json["mqtt_port"]);
+          strcpy(line_freq, json["line_freq"]);
+          strcpy(pga_gain, json["pga_gain"]);
+          strcpy(voltage_gain, json["voltage_gain"]);
+          strcpy(current_gain_st1, json["current_gain_st1"]);
+          strcpy(current_gain_st2, json["current_gain_st2"]);
+          strcpy(current_gain_st3, json["current_gain_st3"]);
+          strcpy(current_gain_st4, json["current_gain_st4"]);
+          strcpy(current_gain_st5, json["current_gain_st5"]);
+          strcpy(current_gain_st6, json["current_gain_st6"]);
+          strcpy(chip_select_bank1, json["chip_select_bank1"]);
+          strcpy(chip_select_bank2, json["chip_select_bank2"]);
+        } else {
+          Serial.println("failed to load json config");
+        }
+        configFile.close();
+      }
+    }
+  } else {
+    Serial.println("failed to mount FS");
+  }
 }
 
 void initializeEnerygyMonitors() {  
