@@ -4,10 +4,23 @@
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager
 #include <ArduinoJson.h>          //https://github.com/bblanchon/ArduinoJson
+#include <SPI.h>
+#include <ATM90E36.h>
 
 //define your default values here, if there are different values in config.json, they are overwritten.
 char mqtt_server[40];
 char mqtt_port[6] = "8080";
+char LineFreq[5] = "4485";
+char PGAGain[5] = "21";
+char VoltageGain[5] = "29462";
+char CurrentGainSCT1[5] = "25498";
+char CurrentGainSCT2[5] = "25498";
+char CurrentGainSCT3[5] = "25498";
+char CurrentGainSCT4[5] = "25498";
+char CurrentGainSCT5[5] = "25498";
+char CurrentGainSCT6[5] = "25498";
+char ChipSelectBank1[2] = "15";
+char ChipSelectBank2[2] = "16"
 
 //flag for saving data
 bool shouldSaveConfig = false;
