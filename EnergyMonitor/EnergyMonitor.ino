@@ -12,17 +12,17 @@
 char monitor_name[40] = "EnergyMonitor";
 char mqtt_server[40];
 char mqtt_port[6] = "8080";
-char line_freq[5] = "4485";
-char pga_gain[5] = "21";
-char voltage_gain[5] = "29462";
-char current_gain_st1[5] = "25498";
-char current_gain_st2[5] = "25498";
-char current_gain_st3[5] = "25498";
-char current_gain_st4[5] = "25498";
-char current_gain_st5[5] = "25498";
-char current_gain_st6[5] = "25498";
-char chip_select_bank1[2] = "15";
-char chip_select_bank2[2] = "16";
+char line_freq[6] = "4485";
+char pga_gain[6] = "21";
+char voltage_gain[6] = "29462";
+char current_gain_st1[6] = "25498";
+char current_gain_st2[6] = "25498";
+char current_gain_st3[6] = "25498";
+char current_gain_st4[6] = "25498";
+char current_gain_st5[6] = "25498";
+char current_gain_st6[6] = "25498";
+char chip_select_bank1[3] = "15";
+char chip_select_bank2[3] = "16";
 
 ATM90E36 *energyMonitor1;
 ATM90E36 *energyMonitor2;
@@ -178,7 +178,7 @@ void setupWiFi() {
   //save the custom parameters to FS
   if (shouldSaveConfig) {
     Serial.println("saving config");
-    DynamicJsonBuffer jsonBuffer;
+    DynamicJsonDocument jsonBuffer(10000);
     JsonObject& json = jsonBuffer.createObject();
     json["monitor_name"] = monitor_name;
     json["mqtt_server"] = mqtt_server;
@@ -225,7 +225,7 @@ void readConfigsFromFileSystem() {
         // Allocate a buffer to store contents of the file.
         std::unique_ptr<char[]> buf(new char[size]);
         configFile.readBytes(buf.get(), size);
-        DynamicJsonBuffer jsonBuffer;
+        DynamicJsonDocument jsonBuffer(size);
         JsonObject& json = jsonBuffer.parseObject(buf.get());
         json.printTo(Serial);
         if (json.success()) {
