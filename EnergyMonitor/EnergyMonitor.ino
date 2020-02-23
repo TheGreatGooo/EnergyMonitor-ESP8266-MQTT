@@ -12,15 +12,15 @@
 char monitor_name[40] = "EnergyMonitor";
 char mqtt_server[40];
 char mqtt_port[6] = "8080";
-char line_freq[6] = "4485";
+char line_freq[6] = "5231";
 char pga_gain[6] = "21";
-char voltage_gain[6] = "29462";
-char current_gain_st1[6] = "25498";
-char current_gain_st2[6] = "25498";
-char current_gain_st3[6] = "25498";
-char current_gain_st4[6] = "25498";
-char current_gain_st5[6] = "25498";
-char current_gain_st6[6] = "25498";
+char voltage_gain[6] = "5630";
+char current_gain_st1[6] = "32498";
+char current_gain_st2[6] = "32498";
+char current_gain_st3[6] = "32498";
+char current_gain_st4[6] = "32498";
+char current_gain_st5[6] = "32498";
+char current_gain_st6[6] = "32498";
 char chip_select_bank1[3] = "15";
 char chip_select_bank2[3] = "16";
 
