@@ -35,26 +35,26 @@ unsigned long last_message_publish = 0;
 bool shouldSaveConfig = false;
 
 //topics to publish
-char* energy_monitor1_system_status0_topic;
-char* energy_monitor1_system_status1_topic;
-char* energy_monitor1_meter_status0_topic;
-char* energy_monitor1_meter_status1_topic;
-char* energy_monitor2_system_status0_topic;
-char* energy_monitor2_system_status1_topic;
-char* energy_monitor2_meter_status0_topic;
-char* energy_monitor2_meter_status1_topic;
-char* line_voltage_topic;
-char* line_frequency_topic;
-char* line_current1_topic;
-char* line_current2_topic;
-char* line_current3_topic;
-char* line_current4_topic;
-char* line_current5_topic;
-char* line_current6_topic;
-char* energy_monitor1_total_import_energy_topic;
-char* energy_monitor1_total_export_energy_topic;
-char* energy_monitor2_total_import_energy_topic;
-char* energy_monitor2_total_export_energy_topic;
+const char* energy_monitor1_system_status0_topic;
+const char* energy_monitor1_system_status1_topic;
+const char* energy_monitor1_meter_status0_topic;
+const char* energy_monitor1_meter_status1_topic;
+const char* energy_monitor2_system_status0_topic;
+const char* energy_monitor2_system_status1_topic;
+const char* energy_monitor2_meter_status0_topic;
+const char* energy_monitor2_meter_status1_topic;
+const char* line_voltage_topic;
+const char* line_frequency_topic;
+const char* line_current1_topic;
+const char* line_current2_topic;
+const char* line_current3_topic;
+const char* line_current4_topic;
+const char* line_current5_topic;
+const char* line_current6_topic;
+const char* energy_monitor1_total_import_energy_topic;
+const char* energy_monitor1_total_export_energy_topic;
+const char* energy_monitor2_total_import_energy_topic;
+const char* energy_monitor2_total_export_energy_topic;
 
 //callback notifying us of the need to save config
 void saveConfigCallback () {
@@ -179,7 +179,7 @@ void setupWiFi() {
   if (shouldSaveConfig) {
     Serial.println("saving config");
     DynamicJsonDocument jsonBuffer(10000);
-    JsonObject& json = jsonBuffer.createObject();
+    JsonObject json = jsonBuffer.to<JsonObject>();
     json["monitor_name"] = monitor_name;
     json["mqtt_server"] = mqtt_server;
     json["mqtt_port"] = mqtt_port;
@@ -200,8 +200,8 @@ void setupWiFi() {
       Serial.println("failed to open config file for writing");
     }
 
-    json.printTo(Serial);
-    json.printTo(configFile);
+    serializeJson(json, Serial);
+    serializeJson(json, configFile);
     configFile.close();
     //end save
   }
@@ -225,10 +225,11 @@ void readConfigsFromFileSystem() {
         // Allocate a buffer to store contents of the file.
         std::unique_ptr<char[]> buf(new char[size]);
         configFile.readBytes(buf.get(), size);
-        DynamicJsonDocument jsonBuffer(size);
-        JsonObject& json = jsonBuffer.parseObject(buf.get());
-        json.printTo(Serial);
-        if (json.success()) {
+        DynamicJsonDocument jsonBuffer(10000);
+        DeserializationError error = deserializeJson(jsonBuffer, buf.get());
+        JsonObject json = jsonBuffer.as<JsonObject>();
+        serializeJson(json, Serial);
+        if (!error) {
           Serial.println("\nparsed json");
           strcpy(monitor_name, json["monitor_name"]);
           strcpy(mqtt_server, json["mqtt_server"]);
@@ -297,9 +298,9 @@ void initializeEnerygyMonitors() {
     (unsigned short) atoi(current_gain_st6));
   
   delay(1000);
-  energyMonitor1.begin();
+  energyMonitor1->begin();
   delay(1000);
-  energyMonitor2.begin();
+  energyMonitor2->begin();
 }
 
 void reconnect() {
@@ -310,11 +311,11 @@ void reconnect() {
     String clientId = String(monitor_name);
     clientId += String(random(0xffff), HEX);
     // Attempt to connect
-    if (client.connect(clientId.c_str())) {
+    if (mqtt_client.connect(clientId.c_str())) {
       Serial.println("connected");
     } else {
       Serial.print("failed, rc=");
-      Serial.print(client.state());
+      Serial.print(mqtt_client.state());
       Serial.println(" try again in 5 seconds");
       // Wait 5 seconds before retrying
       delay(5000);
@@ -332,26 +333,26 @@ void mqttLoop() {
 void loop() {
   unsigned long now = millis();
   if (now - last_message_publish > 500) {
-    lastMsg = now;
-    mqtt_client.publish(energy_monitor1_system_status0_topic, String(energyMonitor1->GetSysStatus0()));
-    mqtt_client.publish(energy_monitor1_system_status1_topic, String(energyMonitor1->GetSysStatus1()));
-    mqtt_client.publish(energy_monitor1_meter_status0_topic, String(energyMonitor1->GetMeterStatus0()));
-    mqtt_client.publish(energy_monitor1_meter_status1_topic, String(energyMonitor1->GetMeterStatus1()));
-    mqtt_client.publish(energy_monitor2_system_status0_topic, String(energyMonitor2->GetSysStatus0()));
-    mqtt_client.publish(energy_monitor2_system_status1_topic, String(energyMonitor2->GetSysStatus1()));
-    mqtt_client.publish(energy_monitor2_meter_status0_topic, String(energyMonitor2->GetMeterStatus0()));
-    mqtt_client.publish(energy_monitor2_meter_status1_topic, String(energyMonitor2->GetMeterStatus1()));
-    mqtt_client.publish(line_voltage_topic, String(energyMonitor1->GetLineVoltageA()));
-    mqtt_client.publish(line_frequency_topic, String(energyMonitor1->GetFrequency()));
-    mqtt_client.publish(line_current1_topic, String(energyMonitor1->GetLineCurrentA()));
-    mqtt_client.publish(line_current2_topic, String(energyMonitor1->GetLineCurrentB()));
-    mqtt_client.publish(line_current3_topic, String(energyMonitor1->GetLineCurrentC()));
-    mqtt_client.publish(line_current4_topic, String(energyMonitor2->GetLineCurrentA()));
-    mqtt_client.publish(line_current5_topic, String(energyMonitor2->GetLineCurrentB()));
-    mqtt_client.publish(line_current6_topic, String(energyMonitor2->GetLineCurrentC()));
-    mqtt_client.publish(energy_monitor1_total_import_energy_topic, String(energyMonitor1->GetImportEnergy()));
-    mqtt_client.publish(energy_monitor1_total_export_energy_topic, String(energyMonitor1->GetExportEnergy()));
-    mqtt_client.publish(energy_monitor2_total_import_energy_topic, String(energyMonitor2->GetImportEnergy()));
-    mqtt_client.publish(energy_monitor2_total_export_energy_topic, String(energyMonitor2->GetExportEnergy()));
+    last_message_publish = now;
+    mqtt_client.publish(energy_monitor1_system_status0_topic, String(energyMonitor1->GetSysStatus0()).c_str());
+    mqtt_client.publish(energy_monitor1_system_status1_topic, String(energyMonitor1->GetSysStatus1()).c_str());
+    mqtt_client.publish(energy_monitor1_meter_status0_topic, String(energyMonitor1->GetMeterStatus0()).c_str());
+    mqtt_client.publish(energy_monitor1_meter_status1_topic, String(energyMonitor1->GetMeterStatus1()).c_str());
+    mqtt_client.publish(energy_monitor2_system_status0_topic, String(energyMonitor2->GetSysStatus0()).c_str());
+    mqtt_client.publish(energy_monitor2_system_status1_topic, String(energyMonitor2->GetSysStatus1()).c_str());
+    mqtt_client.publish(energy_monitor2_meter_status0_topic, String(energyMonitor2->GetMeterStatus0()).c_str());
+    mqtt_client.publish(energy_monitor2_meter_status1_topic, String(energyMonitor2->GetMeterStatus1()).c_str());
+    mqtt_client.publish(line_voltage_topic, String(energyMonitor1->GetLineVoltageA()).c_str());
+    mqtt_client.publish(line_frequency_topic, String(energyMonitor1->GetFrequency()).c_str());
+    mqtt_client.publish(line_current1_topic, String(energyMonitor1->GetLineCurrentA()).c_str());
+    mqtt_client.publish(line_current2_topic, String(energyMonitor1->GetLineCurrentB()).c_str());
+    mqtt_client.publish(line_current3_topic, String(energyMonitor1->GetLineCurrentC()).c_str());
+    mqtt_client.publish(line_current4_topic, String(energyMonitor2->GetLineCurrentA()).c_str());
+    mqtt_client.publish(line_current5_topic, String(energyMonitor2->GetLineCurrentB()).c_str());
+    mqtt_client.publish(line_current6_topic, String(energyMonitor2->GetLineCurrentC()).c_str());
+    mqtt_client.publish(energy_monitor1_total_import_energy_topic, String(energyMonitor1->GetImportEnergy()).c_str());
+    mqtt_client.publish(energy_monitor1_total_export_energy_topic, String(energyMonitor1->GetExportEnergy()).c_str());
+    mqtt_client.publish(energy_monitor2_total_import_energy_topic, String(energyMonitor2->GetImportEnergy()).c_str());
+    mqtt_client.publish(energy_monitor2_total_export_energy_topic, String(energyMonitor2->GetExportEnergy()).c_str());
   }
 }
