@@ -69,9 +69,13 @@ void setup() {
 
   //clean FS, for testing
   //SPIFFS.format();
+  Serial.println("Reading congfig from FileSystem");
   readConfigsFromFileSystem();
+  Serial.println("Setting up Wifi");
   setupWiFi();
+  Serial.println("Setting up Energy Monitors");
   initializeEnerygyMonitors();
+  Serial.println("Setting up MQTT Client");
   initializeMQTTClient();
 }
 
@@ -114,7 +118,7 @@ void setupWiFi() {
   wifiManager.setSaveConfigCallback(saveConfigCallback);
 
   //set static ip
-  wifiManager.setSTAStaticIPConfig(IPAddress(10,0,1,99), IPAddress(10,0,1,1), IPAddress(255,255,255,0));
+  //wifiManager.setSTAStaticIPConfig(IPAddress(10,0,1,99), IPAddress(10,0,1,1), IPAddress(255,255,255,0));
   
   //add all your parameters here
   wifiManager.addParameter(&custom_monitor_name);
@@ -323,7 +327,7 @@ void reconnect() {
   }
 }
 
-void mqttLoop() {
+void mqtt_loop() {
   if (!mqtt_client.connected()) {
     reconnect();
   }
@@ -332,7 +336,9 @@ void mqttLoop() {
 
 void loop() {
   unsigned long now = millis();
+  mqtt_loop();
   if (now - last_message_publish > 500) {
+    Serial.println("Publishing metrics");
     last_message_publish = now;
     mqtt_client.publish(energy_monitor1_system_status0_topic, String(energyMonitor1->GetSysStatus0()).c_str());
     mqtt_client.publish(energy_monitor1_system_status1_topic, String(energyMonitor1->GetSysStatus1()).c_str());
