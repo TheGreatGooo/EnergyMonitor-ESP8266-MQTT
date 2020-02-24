@@ -51,6 +51,7 @@ const char* line_current3_topic;
 const char* line_current4_topic;
 const char* line_current5_topic;
 const char* line_current6_topic;
+const char* reset_topic;
 const char* energy_monitor1_total_import_energy_topic;
 const char* energy_monitor1_total_export_energy_topic;
 const char* energy_monitor2_total_import_energy_topic;
@@ -81,14 +82,18 @@ void setup() {
 
 void initializeMQTTClient() {
   mqtt_client.setServer(mqtt_server, atoi(mqtt_port));
-  mqtt_client.setCallback(callback);
+  mqtt_client.setCallback(mqtt_callback);
 }
 
-void callback(char* topic, byte* payload, unsigned int length) {
+void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
-  //TODO:
+  if(strcmp(topic, reset_topic) == 0) {
+    WiFi.disconnect(true);
+    ESP.reset();
+    delay(5000);
+  }
 }
 
 void setupWiFi() {
@@ -177,7 +182,7 @@ void setupWiFi() {
   strcpy(current_gain_st5, custom_current_gain_st5.getValue());
   strcpy(current_gain_st6, custom_current_gain_st6.getValue());
   strcpy(chip_select_bank1, custom_chip_select_bank1.getValue());
-  strcpy(chip_select_bank2, custom_chip_select_bank1.getValue());
+  strcpy(chip_select_bank2, custom_chip_select_bank2.getValue());
 
   //save the custom parameters to FS
   if (shouldSaveConfig) {
@@ -267,6 +272,7 @@ void readConfigsFromFileSystem() {
           line_current4_topic = (new String(monitor_name_string + "/port4/current"))->c_str();
           line_current5_topic = (new String(monitor_name_string + "/port5/current"))->c_str();
           line_current6_topic = (new String(monitor_name_string + "/port6/current"))->c_str();
+          reset_topic = (new String(monitor_name_string + "/reset"))->c_str();
           energy_monitor1_total_import_energy_topic = (new String(monitor_name_string + "/energy_monitor1/total_import_energy"))->c_str();
           energy_monitor1_total_export_energy_topic = (new String(monitor_name_string + "/energy_monitor1/total_export_energy"))->c_str();
           energy_monitor2_total_import_energy_topic = (new String(monitor_name_string + "/energy_monitor2/total_import_energy"))->c_str();
@@ -317,6 +323,7 @@ void reconnect() {
     // Attempt to connect
     if (mqtt_client.connect(clientId.c_str())) {
       Serial.println("connected");
+      mqtt_client.subscribe(reset_topic);
     } else {
       Serial.print("failed, rc=");
       Serial.print(mqtt_client.state());
