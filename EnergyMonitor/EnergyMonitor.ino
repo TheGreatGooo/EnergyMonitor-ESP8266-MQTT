@@ -21,8 +21,8 @@ char current_gain_st3[6] = "32498";
 char current_gain_st4[6] = "32498";
 char current_gain_st5[6] = "32498";
 char current_gain_st6[6] = "32498";
-char chip_select_bank1[3] = "15";
-char chip_select_bank2[3] = "16";
+char chip_select_bank1[3] = "3";
+char chip_select_bank2[3] = "1";
 
 ATM90E36 *energyMonitor1;
 ATM90E36 *energyMonitor2;
